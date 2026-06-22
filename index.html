@@ -1,0 +1,1050 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Cart - MSU's Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        skyblue: '#98E6EE',
+                        gold: '#D7BD19',
+                        darkblue: '#2c3e50',
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        slideIn: {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sky-blue: #98E6EE;
+            --gold: #D7BD19;
+            --dark-blue: #2c3e50;
+        }
+        
+        .tutorial-slide {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .active-slide {
+            display: flex;
+        }
+        
+        .product-card:hover .whatsapp-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .whatsapp-btn {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        /* Animated icons for categories */
+        .category-icon {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-icon::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--gold);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease;
+        }
+        
+        .category-icon:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+        
+        .loading-animation {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(152, 230, 238, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--gold);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Product hover effects */
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Dark mode support */
+        .dark body {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+        
+        .dark .bg-white {
+            background-color: #1e1e1e;
+        }
+        
+        .dark .border {
+            border-color: #333;
+        }
+        
+        .dark .text-gray-800 {
+            color: #f5f5f5;
+        }
+        
+        .dark .text-gray-600 {
+            color: #d1d1d1;
+        }
+        
+        .dark .shadow {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Animated product placeholder */
+        .product-animation {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(120deg, var(--sky-blue) 0%, var(--gold) 100%);
+        }
+        
+        .product-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 2s infinite linear;
+        }
+        
+        @keyframes shine {
+            to {
+                left: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen">
+    <!-- User Type Selection Screen -->
+    <div id="user-type-screen" class="min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="text-center mb-10 animate-fade-in">
+            <div class="flex justify-center items-center mb-4">
+                <div class="w-16 h-16 rounded-full bg-skyblue flex items-center justify-center mr-2">
+                    <i class="fas fa-shopping-cart text-2xl text-darkblue"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-darkblue">Campus<span class="text-gold">Cart</span></h1>
+            </div>
+            <p class="text-gray-600 max-w-md mx-auto">Your one-stop marketplace for buying and selling at Midlands State University.</p>
+        </div>
+        
+        <div class="flex flex-col md:flex-row gap-6 w-full max-w-3xl">
+            <div class="bg-white rounded-xl shadow-lg p-8 flex-1 border-t-4 border-skyblue hover:shadow-xl transition duration-300 cursor-pointer" onclick="showTutorial('customer')">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-skyblue bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-user text-3xl text-skyblue"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-darkblue mb-2">Continue as Customer</h2>
+                    <p class="text-gray-600">Browse products and services from MSU vendors without signing up.</p>
+                </div>
+                <div class="mt-6">
+                    <button class="w-full py-3 bg-skyblue hover:bg-opacity-80 text-darkblue font-medium rounded-lg transition duration-200">
+                        Get Started <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8 flex-1 border-t-4 border-gold hover:shadow-xl transition duration-300 cursor-pointer" onclick="showTutorial('vendor')">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-gold bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-store text-3xl text-gold"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-darkblue mb-2">Continue as Vendor</h2>
+                    <p class="text-gray-600">Sell your products and services to the MSU community.</p>
+                </div>
+                <div class="mt-6">
+                    <button class="w-full py-3 bg-gold hover:bg-opacity-80 text-darkblue font-medium rounded-lg transition duration-200">
+                        Sign Up/Login <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Slides -->
+    <div id="tutorial-container" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full relative">
+            <button id="skip-tutorial" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                Skip <i class="fas fa-times ml-1"></i>
+            </button>
+            
+            <!-- Customer Tutorial Slides -->
+            <div id="customer-tutorial" class="hidden">
+                <div class="tutorial-slide active-slide flex-col p-8">
+                    <h2 class="text-2xl font-bold text-darkblue mb-4">Welcome to Campus Cart!</h2>
+                    <div class="product-animation h-40 rounded-lg mb-4"></div>
+                    <p class="text-gray-600 mb-6">Discover products and services from MSU vendors in one place.</p>
+                    <div class="flex justify-between">
+                        <div></div>
+                        <button class="tutorial-next px-4 py-2 bg-skyblue rounded-lg">Next <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+                
+                <div class="tutorial-slide flex-col p-8">
+                    <h2 class="text-2xl font-bold text-darkblue mb-4">Browse Categories</h2>
+                    <div class="flex flex-wrap gap-2 justify-center mb-4">
+                        <div class="category-icon p-3 bg-skyblue bg-opacity-20 rounded-lg">
+                            <i class="fas fa-utensils text-2xl text-skyblue"></i>
+                        </div>
+                        <div class="category-icon p-3 bg-skyblue bg-opacity-20 rounded-lg">
+                            <i class="fas fa-tshirt text-2xl text-skyblue"></i>
+                        </div>
+                        <div class="category-icon p-3 bg-skyblue bg-opacity-20 rounded-lg">
+                            <i class="fas fa-laptop text-2xl text-skyblue"></i>
+                        </div>
+                        <div class="category-icon p-3 bg-skyblue bg-opacity-20 rounded-lg">
+                            <i class="fas fa-apple-alt text-2xl text-skyblue"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">Find exactly what you need with our easy-to-use category tabs.</p>
+                    <div class="flex justify-between">
+                        <button class="tutorial-prev px-4 py-2 border border-gray-300 rounded-lg"><i class="fas fa-arrow-left mr-1"></i> Previous</button>
+                        <button class="tutorial-next px-4 py-2 bg-skyblue rounded-lg">Next <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+                
+                <div class="tutorial-slide flex-col p-8">
+                    <h2 class="text-2xl font-bold text-darkblue mb-4">Contact Vendors</h2>
+                    <div class="flex justify-center mb-4">
+                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fab fa-whatsapp text-2xl text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">Easily connect with vendors through WhatsApp to inquire about products or negotiate prices.</p>
+                    <div class="flex justify-between">
+                        <button class="tutorial-prev px-4 py-2 border border-gray-300 rounded-lg"><i class="fas fa-arrow-left mr-1"></i> Previous</button>
+                        <button id="finish-customer-tutorial" class="px-4 py-2 bg-skyblue rounded-lg">Get Started <i class="fas fa-check ml-1"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vendor Tutorial Slides -->
+            <div id="vendor-tutorial" class="hidden">
+                <div class="tutorial-slide active-slide flex-col p-8">
+                    <h2 class="text-2xl font-bold text-darkblue mb-4">Become a Campus Cart Vendor!</h2>
+                    <div class="product-animation h-40 rounded-lg mb-4"></div>
+                    <p class="text-gray-600 mb-6">Start selling your products to the MSU community in just a few steps.</p>
+                    <div class="flex justify-between">
+                        <div></div>
+                        <button class="tutorial-next px-4 py-2 bg-gold rounded-lg">Next <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+                
+                <div class="tutorial-slide flex-col p-8">
+                    <h2 class="text-2xl font-bold text-darkblue mb-4">Create Your Shop</h2>
+                    <div class="flex justify-center mb-4">
+                        <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center">
+                            <i class="fas fa-store text-2xl text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">Sign up with your details and set up your vendor profile to start selling.</p>
+                    <div class="flex justify-between">
+                        <button class="tutorial-prev px-4 py-2 border border-gray-300 rounded-lg"><i class="fas fa-arrow-left mr-1"></i> Previous</button>
+                        <button class="tutorial-next px-4 py-2 bg-gold rounded-lg">Next <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+                
+                <div class="tutorial-slide flex-col p-8">
+                    <h2 class="text-2xl font-bold text-darkblue mb-4">List Your Products</h2>
+                    <div class="flex justify-center mb-4">
+                        <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center">
+                            <i class="fas fa-tags text-2xl text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">Easily post your products with images, prices, and descriptions to attract customers.</p>
+                    <div class="flex justify-between">
+                        <button class="tutorial-prev px-4 py-2 border border-gray-300 rounded-lg"><i class="fas fa-arrow-left mr-1"></i> Previous</button>
+                        <button id="finish-vendor-tutorial" class="px-4 py-2 bg-gold rounded-lg">Continue to Login <i class="fas fa-check ml-1"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Login/Signup Screen -->
+    <div id="vendor-auth-screen" class="hidden min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-darkblue">Vendor Access</h2>
+                <p class="text-gray-600">Sign in to manage your Campus Cart shop</p>
+            </div>
+            
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="login-tab" class="px-4 py-2 font-medium border-b-2 border-gold text-gold">Login</button>
+                <button id="signup-tab" class="px-4 py-2 font-medium text-gray-500">Sign Up</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" class="w-full p-3 border border-gray-300 rounded-lg text-base" placeholder="+263 7X XXX XXXX" required="">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Password</label>
+                    <input type="password" class="w-full p-3 border border-gray-300 rounded-lg text-base" required="">
+                </div>
+                <div class="text-right">
+                    <a href="#" class="text-sm text-skyblue hover:underline">Forgot password?</a>
+                </div>
+                <button type="button" onclick="showVendorDashboard()" class="w-full py-3 bg-gold hover:bg-opacity-80 text-darkblue font-medium rounded-lg transition duration-200">
+                    Login
+                </button>
+            </form>
+            
+            <!-- Sign Up Form -->
+            <form id="signup-form" class="hidden space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-1">Business Name</label>
+                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-base" required="">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Phone Number (WhatsApp)</label>
+                    <input type="tel" class="w-full p-3 border border-gray-300 rounded-lg text-base" placeholder="+263 7X XXX XXXX" required="">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Business Category</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg text-base" required="">
+                        <option value="" disabled="" selected="">Select a category</option>
+                        <option value="transport">Transport</option>
+                        <option value="beauty">Beauty &amp; Cosmetics</option>
+                        <option value="realestate">Real Estate</option>
+                        <option value="produce">Fruits &amp; Vegetables</option>
+                        <option value="fastfood">Fast Food</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="tech">Tech</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Location (City)</label>
+                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-base" placeholder="e.g., Gweru" required="">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Email Address (Optional)</label>
+                    <input type="email" class="w-full p-3 border border-gray-300 rounded-lg text-base" placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">EcoCash/OneMoney Number (Optional)</label>
+                    <input type="tel" class="w-full p-3 border border-gray-300 rounded-lg text-base" placeholder="+263 7X XXX XXXX">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Password</label>
+                    <input type="password" class="w-full p-3 border border-gray-300 rounded-lg text-base" required="">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" class="w-full p-3 border border-gray-300 rounded-lg text-base" required="">
+                </div>
+                <button type="button" onclick="showVendorDashboard()" class="w-full py-3 bg-gold hover:bg-opacity-80 text-darkblue font-medium rounded-lg transition duration-200">
+                    Create Account
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <button onclick="goBack()" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Dashboard -->
+    <div id="customer-dashboard" class="hidden min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-skyblue flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-lg text-darkblue"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-darkblue">Campus<span class="text-gold">Cart</span></h1>
+                    </div>
+                    
+                    <div class="w-full max-w-md mx-4 relative hidden md:block">
+                        <input type="text" placeholder="Search products, services, vendors..." class="w-full p-2 pl-10 border border-gray-300 rounded-lg text-base">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    
+                    <div>
+                        <button onclick="goBack()" class="text-gray-600 hover:text-gray-800 p-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:hidden mt-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search products, services, vendors..." class="w-full p-2 pl-10 border border-gray-300 rounded-lg text-base">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Category Tabs -->
+        <div class="bg-white shadow-sm mb-4 overflow-x-auto">
+            <div class="container mx-auto">
+                <div class="flex py-2 px-4 space-x-6 min-w-max">
+                    <button class="category-btn flex flex-col items-center p-2 text-skyblue focus:outline-none" data-category="all">
+                        <i class="fas fa-th text-xl mb-1"></i>
+                        <span class="text-sm">All</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="transport">
+                        <i class="fas fa-car text-xl mb-1"></i>
+                        <span class="text-sm">Transport</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="beauty">
+                        <i class="fas fa-spa text-xl mb-1"></i>
+                        <span class="text-sm">Beauty</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="realestate">
+                        <i class="fas fa-home text-xl mb-1"></i>
+                        <span class="text-sm">Real Estate</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="produce">
+                        <i class="fas fa-apple-alt text-xl mb-1"></i>
+                        <span class="text-sm">Produce</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="fastfood">
+                        <i class="fas fa-utensils text-xl mb-1"></i>
+                        <span class="text-sm">Fast Food</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="groceries">
+                        <i class="fas fa-shopping-basket text-xl mb-1"></i>
+                        <span class="text-sm">Groceries</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="clothing">
+                        <i class="fas fa-tshirt text-xl mb-1"></i>
+                        <span class="text-sm">Clothing</span>
+                    </button>
+                    <button class="category-btn flex flex-col items-center p-2 text-gray-500 focus:outline-none" data-category="tech">
+                        <i class="fas fa-laptop text-xl mb-1"></i>
+                        <span class="text-sm">Tech</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sort and Filter Options -->
+        <div class="container mx-auto px-4 mb-4">
+            <div class="flex flex-wrap justify-between items-center gap-2">
+                <h2 class="text-lg font-semibold text-darkblue">Popular Products</h2>
+                
+                <div class="flex gap-2">
+                    <select class="border border-gray-300 rounded-lg p-2 text-sm">
+                        <option>Sort by: Featured</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Most Recent</option>
+                        <option>Most Popular</option>
+                    </select>
+                    
+                    <button class="bg-white border border-gray-300 rounded-lg p-2 flex items-center gap-1 text-sm">
+                        <i class="fas fa-filter"></i>
+                        <span>Filter</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="container mx-auto px-4 flex-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Product 1 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48 relative">
+                        <div class="absolute top-2 right-2 bg-skyblue text-darkblue text-xs font-bold px-2 py-1 rounded">
+                            Popular
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">MSU Branded Hoodie</h3>
+                            <span class="font-bold text-gold">$15</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Comfortable MSU branded hoodie, available in various sizes.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>Gweru</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-gold flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">JF</span>
+                                </div>
+                                <span class="text-xs text-gray-600">John's Fashion</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48 relative">
+                        <div class="absolute top-2 right-2 bg-gold text-darkblue text-xs font-bold px-2 py-1 rounded">
+                            New
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">HP Laptop (Used)</h3>
+                            <span class="font-bold text-gold">$250</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Used HP laptop in good condition, Core i5, 8GB RAM, 256GB SSD.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>Gweru</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-skyblue flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">TS</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Tech Solutions</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 3 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">Fresh Strawberries</h3>
+                            <span class="font-bold text-gold">$3</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Freshly picked strawberries, 250g pack.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>MSU Campus</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">FF</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Fresh Farms</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 4 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">Room For Rent</h3>
+                            <span class="font-bold text-gold">$80/mo</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Single room with shared bathroom, 10min walk from campus.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>Senga, Gweru</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">SR</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Senga Rentals</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 5 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">Campus Ride Service</h3>
+                            <span class="font-bold text-gold">$5</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Reliable transport to and from campus. Book 1 hour in advance.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>MSU Area</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">CT</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Campus Transit</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 6 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">Hair Braiding</h3>
+                            <span class="font-bold text-gold">$10+</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Professional hair braiding services. Various styles available.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>MSU Hostels</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">BS</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Beauty Spot</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 7 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">Chicken &amp; Chips</h3>
+                            <span class="font-bold text-gold">$4</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Delicious fried chicken with chips. Free delivery on campus.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>MSU Food Court</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">CF</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Campus Food</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 8 -->
+                <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-48"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">USB Flash Drive</h3>
+                            <span class="font-bold text-gold">$8</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">32GB USB 3.0 flash drive. Fast transfer speeds.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>MSU Library</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-skyblue flex items-center justify-center mr-1">
+                                    <span class="text-xs text-white font-bold">TS</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Tech Solutions</span>
+                            </div>
+                            <a href="https://wa.me/2637XXXXXXXX" target="_blank" class="whatsapp-btn bg-green-500 text-white p-2 rounded-full">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Dashboard -->
+    <div id="vendor-dashboard" class="hidden min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+                            <i class="fas fa-store text-lg text-darkblue"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-darkblue">Vendor Dashboard</h1>
+                    </div>
+                    
+                    <div>
+                        <button onclick="goBack()" class="text-gray-600 hover:text-gray-800 p-2">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Vendor Stats -->
+        <div class="bg-white shadow-sm mb-4">
+            <div class="container mx-auto px-4 py-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-skyblue bg-opacity-10 p-4 rounded-lg">
+                        <h3 class="text-sm text-gray-600">Active Products</h3>
+                        <p class="text-2xl font-bold text-darkblue">8</p>
+                    </div>
+                    <div class="bg-gold bg-opacity-10 p-4 rounded-lg">
+                        <h3 class="text-sm text-gray-600">Total Views</h3>
+                        <p class="text-2xl font-bold text-darkblue">245</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-lg">
+                        <h3 class="text-sm text-gray-600">WhatsApp Contacts</h3>
+                        <p class="text-2xl font-bold text-darkblue">32</p>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-lg">
+                        <h3 class="text-sm text-gray-600">Avg. Rating</h3>
+                        <p class="text-2xl font-bold text-darkblue">4.8</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="bg-white shadow-sm mb-4">
+            <div class="container mx-auto px-4">
+                <div class="flex border-b border-gray-200">
+                    <button id="products-tab" class="px-4 py-3 font-medium border-b-2 border-gold text-gold">My Products</button>
+                    <button id="orders-tab" class="px-4 py-3 font-medium text-gray-500">Messages</button>
+                    <button id="settings-tab" class="px-4 py-3 font-medium text-gray-500">Settings</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Tab Content -->
+        <div id="products-content" class="container mx-auto px-4 flex-1">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-darkblue">My Products</h2>
+                <button class="bg-gold hover:bg-opacity-80 text-darkblue font-medium px-4 py-2 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-1"></i> Add Product
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Product 1 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-40"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">MSU Branded Hoodie</h3>
+                            <span class="font-bold text-gold">$15</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Comfortable MSU branded hoodie, available in various sizes.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-eye mr-1"></i>
+                            <span>46 views</span>
+                            <i class="fas fa-comment ml-3 mr-1"></i>
+                            <span>12 contacts</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex">
+                                <button class="text-skyblue hover:text-opacity-80 mr-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-opacity-80">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
+                                Active
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="product-animation h-40"></div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-semibold text-darkblue">MSU T-Shirt</h3>
+                            <span class="font-bold text-gold">$10</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">MSU branded t-shirt, cotton material, various colors.</p>
+                        <div class="flex items-center mt-2 text-sm text-gray-500">
+                            <i class="fas fa-eye mr-1"></i>
+                            <span>38 views</span>
+                            <i class="fas fa-comment ml-3 mr-1"></i>
+                            <span>8 contacts</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex">
+                                <button class="text-skyblue hover:text-opacity-80 mr-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-opacity-80">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
+                                Active
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Product Card -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition duration-200">
+                    <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center mb-2">
+                        <i class="fas fa-plus text-gold"></i>
+                    </div>
+                    <h3 class="font-semibold text-darkblue mb-1">Add New Product</h3>
+                    <p class="text-sm text-gray-500">Upload photos and details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        // Navigation functions
+        function showTutorial(userType) {
+            document.getElementById('user-type-screen').style.display = 'none';
+            document.getElementById('tutorial-container').style.display = 'flex';
+            
+            // Reset and hide all tutorials
+            document.getElementById('customer-tutorial').style.display = 'none';
+            document.getElementById('vendor-tutorial').style.display = 'none';
+            
+            // Show the selected tutorial
+            document.getElementById(`${userType}-tutorial`).style.display = 'block';
+            
+            // Reset slides
+            const slides = document.querySelectorAll(`#${userType}-tutorial .tutorial-slide`);
+            slides.forEach((slide, index) => {
+                if (index === 0) {
+                    slide.classList.add('active-slide');
+                } else {
+                    slide.classList.remove('active-slide');
+                }
+            });
+        }
+        
+        function showCustomerDashboard() {
+            document.getElementById('tutorial-container').style.display = 'none';
+            document.getElementById('customer-dashboard').style.display = 'flex';
+        }
+        
+        function showVendorAuth() {
+            document.getElementById('tutorial-container').style.display = 'none';
+            document.getElementById('vendor-auth-screen').style.display = 'flex';
+        }
+        
+        function showVendorDashboard() {
+            document.getElementById('vendor-auth-screen').style.display = 'none';
+            document.getElementById('vendor-dashboard').style.display = 'flex';
+        }
+        
+        function goBack() {
+            document.getElementById('customer-dashboard').style.display = 'none';
+            document.getElementById('vendor-dashboard').style.display = 'none';
+            document.getElementById('vendor-auth-screen').style.display = 'none';
+            document.getElementById('tutorial-container').style.display = 'none';
+            document.getElementById('user-type-screen').style.display = 'flex';
+        }
+        
+        // Tutorial navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Skip tutorial button
+            document.getElementById('skip-tutorial').addEventListener('click', function() {
+                const activeCustomerTutorial = document.querySelector('#customer-tutorial .active-slide');
+                const activeVendorTutorial = document.querySelector('#vendor-tutorial .active-slide');
+                
+                if (activeCustomerTutorial) {
+                    showCustomerDashboard();
+                } else if (activeVendorTutorial) {
+                    showVendorAuth();
+                }
+            });
+            
+            // Next/Previous buttons for customer tutorial
+            document.querySelectorAll('#customer-tutorial .tutorial-next').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentSlide = this.closest('.tutorial-slide');
+                    const nextSlide = currentSlide.nextElementSibling;
+                    currentSlide.classList.remove('active-slide');
+                    nextSlide.classList.add('active-slide');
+                });
+            });
+            
+            document.querySelectorAll('#customer-tutorial .tutorial-prev').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentSlide = this.closest('.tutorial-slide');
+                    const prevSlide = currentSlide.previousElementSibling;
+                    currentSlide.classList.remove('active-slide');
+                    prevSlide.classList.add('active-slide');
+                });
+            });
+            
+            // Next/Previous buttons for vendor tutorial
+            document.querySelectorAll('#vendor-tutorial .tutorial-next').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentSlide = this.closest('.tutorial-slide');
+                    const nextSlide = currentSlide.nextElementSibling;
+                    currentSlide.classList.remove('active-slide');
+                    nextSlide.classList.add('active-slide');
+                });
+            });
+            
+            document.querySelectorAll('#vendor-tutorial .tutorial-prev').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentSlide = this.closest('.tutorial-slide');
+                    const prevSlide = currentSlide.previousElementSibling;
+                    currentSlide.classList.remove('active-slide');
+                    prevSlide.classList.add('active-slide');
+                });
+            });
+            
+            // Finish tutorial buttons
+            document.getElementById('finish-customer-tutorial').addEventListener('click', showCustomerDashboard);
+            document.getElementById('finish-vendor-tutorial').addEventListener('click', showVendorAuth);
+            
+            // Auth tabs
+            document.getElementById('login-tab').addEventListener('click', function() {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('signup-form').style.display = 'none';
+                document.getElementById('login-tab').classList.add('border-gold', 'text-gold');
+                document.getElementById('signup-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('login-tab').classList.remove('text-gray-500');
+                document.getElementById('signup-tab').classList.add('text-gray-500');
+            });
+            
+            document.getElementById('signup-tab').addEventListener('click', function() {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+                document.getElementById('signup-tab').classList.add('border-gold', 'text-gold');
+                document.getElementById('login-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('signup-tab').classList.remove('text-gray-500');
+                document.getElementById('login-tab').classList.add('text-gray-500');
+            });
+            
+            // Category buttons
+            document.querySelectorAll('.category-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(btn => {
+                        btn.classList.remove('text-skyblue');
+                        btn.classList.add('text-gray-500');
+                    });
+                    this.classList.remove('text-gray-500');
+                    this.classList.add('text-skyblue');
+                });
+            });
+            
+            // Vendor dashboard tabs
+            document.getElementById('products-tab').addEventListener('click', function() {
+                document.getElementById('products-tab').classList.add('border-gold', 'text-gold');
+                document.getElementById('orders-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('settings-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('orders-tab').classList.add('text-gray-500');
+                document.getElementById('settings-tab').classList.add('text-gray-500');
+                // Show products content (would need to implement the other tabs content)
+            });
+            
+            document.getElementById('orders-tab').addEventListener('click', function() {
+                document.getElementById('orders-tab').classList.add('border-gold', 'text-gold');
+                document.getElementById('products-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('settings-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('products-tab').classList.add('text-gray-500');
+                document.getElementById('settings-tab').classList.add('text-gray-500');
+                // Show orders content
+            });
+            
+            document.getElementById('settings-tab').addEventListener('click', function() {
+                document.getElementById('settings-tab').classList.add('border-gold', 'text-gold');
+                document.getElementById('products-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('orders-tab').classList.remove('border-gold', 'text-gold');
+                document.getElementById('products-tab').classList.add('text-gray-500');
+                document.getElementById('orders-tab').classList.add('text-gray-500');
+                // Show settings content
+            });
+        });
+    </script>
+
+
+</body></html>
