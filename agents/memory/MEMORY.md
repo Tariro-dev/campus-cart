@@ -1,0 +1,2 @@
+- [API Zod index overwrite](api-zod-index.md) — orval overwrites lib/api-zod/src/index.ts after every codegen; must reset to single export
+- [Feather icon missing names](feather-icons.md) — Feather icon set lacks "store"; use "shopping-bag" instead
